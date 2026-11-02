@@ -1,9 +1,10 @@
 "use client";
+import { Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 
-export default function ResultPage() {
+function ResultContent() {
   const params = useSearchParams();
   const router = useRouter();
   const { data: session } = useSession();
@@ -55,5 +56,13 @@ export default function ResultPage() {
         </button>
       </div>
     </main>
+  );
+}
+
+export default function ResultPage() {
+  return (
+    <Suspense fallback={<div className="flex items-center justify-center min-h-screen bg-gray-900 text-white">Loading...</div>}>
+      <ResultContent />
+    </Suspense>
   );
 }

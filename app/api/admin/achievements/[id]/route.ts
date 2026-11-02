@@ -5,12 +5,15 @@ import { NextResponse } from "next/server";
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
+  const { id } = await params;
+
   const session = await getServerSession(authOptions);
   if (!session?.user?.role || !["admin", "owner"].includes(session.user.role)) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 403 });
   }
-  await prisma.achievement.delete({ where: { id: params.id } });
+
+  await prisma.achievement.delete({ where: { id } });
   return NextResponse.json({ message: "Deleted" });
 }

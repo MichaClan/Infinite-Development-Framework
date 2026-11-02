@@ -5,9 +5,10 @@ import { NextResponse } from "next/server";
 
 export async function PATCH(
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.email) {
@@ -49,7 +50,7 @@ export async function PATCH(
     }
 
     const updated = await prisma.user.update({
-      where: { id: params.userId },
+      where: { id: userId },
       data: updateData,
       include: { role: true }
     });
@@ -63,9 +64,10 @@ export async function PATCH(
 
 export async function DELETE(
   req: Request,
-  { params }: { params: { userId: string } }
+  { params }: { params: Promise<{ userId: string }> }
 ) {
   try {
+    const { userId } = await params;
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.email) {
@@ -81,12 +83,12 @@ export async function DELETE(
       return NextResponse.json({ error: "Only owner can delete users" }, { status: 403 });
     }
 
-    if (currentUser.id === params.userId) {
+    if (currentUser.id === userId) {
       return NextResponse.json({ error: "Cannot delete yourself" }, { status: 400 });
     }
 
     await prisma.user.delete({
-      where: { id: params.userId },
+      where: { id: userId },
     });
 
     return NextResponse.json({ message: "User deleted" });
